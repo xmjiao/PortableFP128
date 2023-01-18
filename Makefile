@@ -1,5 +1,5 @@
 
-CC ?= clang
+CC = $(shell which gcc > /dev/null && echo gcc || echo clang)
 CCBASE = $(notdir $(CC))
 OPTFLAGS = -O3
 
@@ -8,19 +8,19 @@ OPTFLAGS = -O3
 # gcc and clang do...
 TARGET = $(shell $(CC) -v 2>&1 | grep "Target: x86_64")
 ifneq "$(TARGET)" ""
-  $(info *** x86_64 target, adding -lquadmath to the link flags. ***)
+  # $(info *** x86_64 target, adding -lquadmath to the link flags. ***)
   LDFLAGS += -lquadmath
 endif
 
 CFLAGS += $(OPTFLAGS)
 
-testPFP128_$(CCBASE): 
+testPFP128_$(CCBASE):
 
 %_$(CCBASE).o: %.c pfp128.h Makefile
 	$(CC) -o $@ -c $(CFLAGS) $<
 
 %: %.o
-	$(CC) -o $@ $< -lm  $(LDFLAGS) 
+	$(CC) -o $@ $< -lm  $(LDFLAGS)
 
 clean:
-	rm testPFP128_* *.o
+	rm -f testPFP128_* *.o

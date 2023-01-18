@@ -58,6 +58,8 @@
 #define TARGET_OS_NAME "MacOS"
 #elif (defined(LINUX) || defined(__linux__) || defined(__linux))
 #define TARGET_OS_NAME "Linux"
+#elif (defined(__MINGW64__))
+#define TARGET_OS_NAME "MINGW64"
 #else
 #error Unknown operating system
 #endif
@@ -86,7 +88,7 @@
 // long double is not the IEEE 128b format.
 #define FP128Name(base) base##q
 #define FP128ConstName(base) base##Q
-#endif // end of architecture spcific setup.
+#endif // end of architecture specific setup.
 
 // From here on the code is common no matter what the underlying implementation.
 // clang-format really messes up the multiple line macro definitions :-(
@@ -103,9 +105,9 @@ static void printError(char const * baseName,
   FP128_snprintf(&orstr[0], sizeof(orstr),
 		 "%12.10" FP128_FMT_TAG "f", ourResult);
   printf("*** %s FAILED: %sFP128 => %s %s => %s\n",
-	 baseName, baseName, orstr, underlyingName, brstr);				
+	 baseName, baseName, orstr, underlyingName, brstr);
 }
-		       
+
 // These functions are all happy with pi/4 as an argument:-)
 #define FOREACH_128TO128_UNARY_FUNCTION(op)     \
   op(acos, FP128, FP128)                        \
@@ -138,10 +140,10 @@ static void printError(char const * baseName,
   op(tan, FP128, FP128)                         \
   op(tanh, FP128, FP128)                        \
   op(tgamma, FP128, FP128)                      \
-  op(trunc, FP128, FP128)                       
+  op(trunc, FP128, FP128)
 // acosh is not happy with pi/4as an argument, so we treat it separately
 // exp2 does not seem to be available everywhere...
-//   op(exp2, FP128, FP128)                     
+//   op(exp2, FP128, FP128)
 
 #define FOREACH_128TOINT_UNARY_FUNCTION(op)     \
   op(ilogb, int, FP128,"d")                     \
@@ -174,8 +176,8 @@ static void printError(char const * baseName,
   op(csqrt, COMPLEX_FP128, COMPLEX_FP128)               \
   op(ctan, COMPLEX_FP128, COMPLEX_FP128)                \
   op(ctanh, COMPLEX_FP128, COMPLEX_FP128)
- 
-//  op(nan, FP128, const char *)                
+
+//  op(nan, FP128, const char *)
 
 #define TestUnary128to128Function(basename, restype, argtype)           \
   {                                                                     \
@@ -198,8 +200,8 @@ static int verbose = 0;
 
 static void test128to128UnaryFunctions() {
   FOREACH_128TO128_UNARY_FUNCTION(TestUnary128to128Function)
-    // acosh needs a different argument!    
-  {                                                  
+    // acosh needs a different argument!
+  {
     FP128 baseResult = FP128Name(acosh)(M_PI_FP128);
     FP128 ourResult  = acoshFP128(M_PI_FP128);
 
@@ -208,7 +210,7 @@ static void test128to128UnaryFunctions() {
         printf ("acosh     passed\n");
       passes++;
     } else {
-      printError(STRINGIFY(acosh), STRINGIFY(FP128Name(acosh)), baseResult, ourResult); 
+      printError(STRINGIFY(acosh), STRINGIFY(FP128Name(acosh)), baseResult, ourResult);
       failures++;
     }
   }
@@ -231,7 +233,7 @@ static void test128to128UnaryFunctions() {
   }
 
 static void test128toIntUnaryFunctions() {
-  FOREACH_128TOINT_UNARY_FUNCTION(TestUnary128toIntFunction)             
+  FOREACH_128TOINT_UNARY_FUNCTION(TestUnary128toIntFunction)
 }
 
 #define TestComplexTo128Function(basename,restype, argtype) {           \
@@ -254,7 +256,7 @@ static void test128toIntUnaryFunctions() {
 
 static void testComplexTo128UnaryFunctions() {
   FOREACH_COMPLEXTO128_UNARY_FUNCTION(TestComplexTo128Function)
-}    
+}
 
 
 #define TestComplexToComplexFunction(basename,restype, argtype) {       \
@@ -280,7 +282,7 @@ static void testComplexTo128UnaryFunctions() {
 
 static void testComplexToComplexUnaryFunctions() {
   FOREACH_COMPLEXTOCOMPLEX_UNARY_FUNCTION(TestComplexToComplexFunction)
-}    
+}
 
 #define FOREACH_128BINARY_FUNCTION(op)          \
   op(atan2, FP128, FP128, FP128)                \
@@ -335,7 +337,7 @@ static void testInput() {
 static void testPrintf() {
   char line[64];
   char const * correct = "2.718281828459045235360287471352662";
-  
+
   (void)FP128_snprintf(&line[0], sizeof(line),"%35.33" FP128_FMT_TAG "f", M_E_FP128);
   if (!strcmp(&line[0],correct)) {
     if (verbose)

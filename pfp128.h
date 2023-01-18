@@ -55,7 +55,7 @@ static inline FP128 strtoFP128(char const *s, char **sp) {
 #warning FP128_CONST tag is F128
 #warning FP128 function suffix is f128
 #warning strtoFP128 => strtof128
-#warning 
+#warning
 #endif
 #elif (defined(__LONG_DOUBLE_IEEE128__))
 // No standard conformant support has been promised by the implementation.
@@ -83,7 +83,14 @@ static inline FP128 strtoFP128(char const *s, char **sp) {
 #if (PFP128_SHOW_CONFIG)
 #warning Invoked with PFP128_SHOW_CONFIG: targeting AArch64 (not MacOS)
 #endif
-#elif (__x86_64__)
+#elif defined(__clang__) && !defined(__linux__)
+// Clang cannot find quadmath.h, so let us resort to use long double
+// except for linux systems
+#define FP128_IS_LONGDOUBLE 1
+#if (PFP128_SHOW_CONFIG)
+#warning Invoked with PFP128_SHOW_CONFIG: targeting clang
+#endif
+#elif defined(__x86_64__)
 #if (PFP128_SHOW_CONFIG)
 #warning Invoked with PFP128_SHOW_CONFIG: targeting x86_64
 #endif
@@ -236,7 +243,7 @@ static inline restype basename ## FP128(at1 arg1, at2 arg2, at3 arg3) { \
 
 // exp2 doesn't seem to be available everywhere.
 // If you need it, and have it, then add it in the obvious way.
-// op(exp2, FP128, FP128)			
+// op(exp2, FP128, FP128)
 
 FOREACH_UNARY_FUNCTION(CreateUnaryShim)
 

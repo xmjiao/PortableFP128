@@ -84,9 +84,12 @@
 #if (defined(__LONG_DOUBLE_IEEE128__))
 #define FP128Name(base) base##l
 #define FP128ConstName(base) base##L
-#else
+#elif !defined(__clang__) || defined(__linux__)
 // long double is not the IEEE 128b format.
 #define FP128Name(base) base##q
+#define FP128ConstName(base) base##Q
+#else
+#define FP128Name(base) base
 #define FP128ConstName(base) base##Q
 #endif // end of architecture specific setup.
 
